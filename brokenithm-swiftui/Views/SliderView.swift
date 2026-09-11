@@ -35,15 +35,17 @@ struct SliderView: View {
     }
     
     private func getColor(con: Listener?, i: Int, laneSplit: Bool) -> Color {
-        if con == nil {
+        guard let con = con, con.ledArray.count >= 96 else {
             return .black
         }
-        
-        if laneSplit {
-            return Color(red: Double((con?.ledArray[(i * 2) * 3 + 4])!) / 255, green: Double((con?.ledArray[(i * 2) * 3 + 3])!) / 255, blue: Double((con?.ledArray[(i * 2) * 3 + 5])!) / 255)
-        }
-        
-        return Color(red: Double((con?.ledArray[(i * 2) * 3 + 1])!) / 255, green: Double((con?.ledArray[(i * 2) * 3])!) / 255, blue: Double((con?.ledArray[(i * 2) * 3 + 2])!) / 255)
+
+        let blockIndex = laneSplit ? (i * 2 + 1) : (i * 2)
+        guard blockIndex < 32 else { return .black }
+        let base = blockIndex * 3
+        let b = Double(con.ledArray[base + 0]) / 255.0
+        let r = Double(con.ledArray[base + 1]) / 255.0
+        let g = Double(con.ledArray[base + 2]) / 255.0
+        return Color(red: r, green: g, blue: b)
     }
     
 }

@@ -41,7 +41,13 @@ struct ContentView: View {
                         }
                         .pickerStyle(.menu)
                         Button("Restart Connection", systemImage: "arrow.clockwise") {
-                            try? connection?.restart()
+                            connection?.restart()
+                        }
+                        Button("Test Button", systemImage: "wrench.and.screwdriver") {
+                            connection?.triggerTest()
+                        }
+                        Button("Service Button", systemImage: "gearshape") {
+                            connection?.triggerService()
                         }
                         Button("Tap Card", systemImage: "person.text.rectangle") {
                             connection?.tapCard()
@@ -69,18 +75,23 @@ struct ContentView: View {
             }
         }
         .ignoresSafeArea(edges: [.bottom])
+        .defersSystemGestures(on: .all)
+        .persistentSystemOverlays(.hidden)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
-                try? connection?.restart()
+                connection?.restart()
             }
         }
         .onChange(of: airOn) {
             connection?.enableAir(enabled: airOn)
         }
         .onAppear {
-            connection = try? Listener()
-            if connection != nil {
-                connection?.start()
+            if connection == nil {
+                let newConnection = Listener()
+                newConnection.airOn = airOn
+                connection = newConnection
+            } else {
+                connection?.airOn = airOn
             }
         }
         .sheet(isPresented: $sheetShowing, content: { AboutView(isPresented: $sheetShowing).presentationDragIndicator(.visible) })
